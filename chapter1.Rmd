@@ -9,5 +9,6 @@
 date()
 
 ```
-The text continues here.
+I am a PhD student in the School of Pharmacy, UEF. I am doing metabolomics studies in my PhD thesis and I have a huge amount of data to be analyzed. I chose this course to get some new tools for analyzing and visualizing my data. I have used R in a couple of basic statistics courses but I wish to learn some new tricks in this course. 
 
+Here is the to link to my GitHub repository: https://github.com/johannakoskivuori/IODS-project  
