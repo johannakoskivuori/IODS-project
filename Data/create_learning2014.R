@@ -9,5 +9,6 @@ install.packages("dplyr")
 library(dplyr) # useful library for data wrangling
 
 keep_columns <- c("gender","Age","Attitude", "deep", "Stra", "Surf", "Points") #variables gender, age, attitude, deep, stra, surf and points
-analysis_dataset <- select(learning2014, one_of(keep_columns))
+analysis_dataset <- select(learning2014, one_of(keep_columns)) # don´t know what to do: Warning message:
+# Unknown columns: `deep`, `Stra`, `Surf` 
 
