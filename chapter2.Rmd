@@ -1,4 +1,4 @@
-# Insert chapter 2 title here
+# 2. Regression and model validation
 
 *Describe the work you have done this week and summarize your learning.*
 
@@ -8,6 +8,53 @@
 
 ```{r}
 date()
+
 ```
 
-Here we go again...
+```{r}
+setwd("~/R/IODS-course/IODS-project/Data") # getting data from the right folder
+students2014 <- read.table("learning2014.txt", sep = ",", header = TRUE)
+
+```
+
+```{r}
+str(students2014)
+dim(students2014)
+head(students2014)
+```
+The Data has 166 rows and 7 columns. Variables in the data are : gender, age, attitude (attitude towards statistics), deep = Deep approach, stra = Strategic approach, surf = Surface approach and points (exam points). Data is from a survey regarding teaching and learning. Variables attitude, deep, stra and surf are scaled back to the likert scale (1-5) from the [original data](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt). More information from the data can be found [here](https://www.mv.helsinki.fi/home/kvehkala/JYTmooc/JYTOPKYS3-meta.txt)
+
+
+#### Graphical overview of the data
+
+Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-3 points)
+
+Here is one possible graphical overview of the data. Picture would be more informative with colours so that males and females (points) are in different colours but I could not make it work. So the summary table probably tells more about the data. There are the mean values of different variables and also minimum (min) and maximum (max) values. Age distribution seems to be more on the left so the most of the students are between 20-30 years, mean age 25,51. Values of attitude, stra and surf are quite evenly distributes. Distribution of deep values is a bit more on the right side and so the mean value is also quite high 3.680. If we look at the points, the distribution look interesting. There is a small group on the left with small values (~10 points) and then a bigger group with higher points. 
+
+```{r}
+pairs(students2014[-1]) # picture would be more informative if the points were different colours between genders
+summary(students2014)
+
+```
+Choose three variables as explanatory variables and fit a regression model where exam points is the target (dependent) variable. Show a summary of the fitted model and comment and interpret the results. Explain and interpret the statistical test related to the model parameters. If an explanatory variable in your model does not have a statistically significant relationship with the target variable, remove the variable from the model and fit the model again without it. (0-4 points)
+
+#### Linear models
+
+
+I chose age, attitude and deep as explanatory variables and fitted the linear model.
+
+```{r}
+model1 <- lm(points ~ age + attitude + deep, data = students2014)
+summary(model1)
+
+```
+From the summary we can see the model1 parameters. Estimates tell the relationships between the explanatory variables and the target variable. By using he estimates we can also write down the linear equation: _points=15.60773-0.07716age+3.59413attitude-0.60275deep_. Then there are standard errors, and t-values from the statistical test that have been performed and p-values which tell if the explanatory variable is statistically significant variable. Usually we choose the level of significance, often it is 0,05. If we look at the variable age, we see that the p-value is 0,149 > 0,05, so age is not statistically significant variable. Variable deep is not either statistically significant variable because its p-value is even higher 0,423 > 0,05. But if we look variable attitude, p-value is very small 2.56e-09 < 0,05, and it is statistically significant. 
+
+Next I remove age and deep from the model, because they were not statistically significant. 
+
+```{r}
+model2 <- lm(points ~  attitude, data = students2014)
+summary(model2)
+
+```
+From the summary we can see the model2 parameters. 
