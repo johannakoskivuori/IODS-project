@@ -29,7 +29,7 @@ The Data has 166 rows and 7 columns. Variables in the data are : gender, age, at
 
 Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-3 points)
 
-Here is one possible graphical overview of the data. Picture would be more informative with colours so that males and females (points) are in different colours but I could not make it work. So the summary table probably tells more about the data. There are the mean values of different variables and also minimum (min) and maximum (max) values. Age distribution seems to be more on the left so the most of the students are between 20-30 years, mean age 25,51. Values of attitude, stra and surf are quite evenly distributes. Distribution of deep values is a bit more on the right side and so the mean value is also quite high 3.680. If we look at the points, the distribution look interesting. There is a small group on the left with small values (~10 points) and then a bigger group with higher points. 
+Here is one possible graphical overview of the data. Picture would be more informative with colours so that males and females (points) are in different colours but I could not make it work with R. So the summary table probably tells more about the data. There are the mean values of different variables and also minimum (min) and maximum (max) values. Age distribution seems to be more on the left so the most of the students are between 20-30 years, mean age 25,51. Values of attitude, stra and surf are quite evenly distributed. Distribution of deep values is a bit more on the right side and so the mean value is also quite high 3.680. If we look at the points, the distribution looks interesting. There is a small group on the left with small values (~10 points) and then a bigger group with higher points. 
 
 ```{r}
 pairs(students2014[-1]) # picture would be more informative if the points were different colours between genders
@@ -41,14 +41,14 @@ Choose three variables as explanatory variables and fit a regression model where
 #### Linear models
 
 
-I chose age, attitude and deep as explanatory variables and fitted the linear model.
+I chose age, attitude and deep as explanatory variables and fitted the linear model where points is the target variable.
 
 ```{r}
-model1 <- lm(points ~ age + attitude + deep, data = students2014)
+model1 <- lm(points ~ age + attitude + deep, data = students2014) 
 summary(model1)
 
 ```
-From the summary we can see the model1 parameters. Estimates tell the relationships between the explanatory variables and the target variable. By using he estimates we can also write down the linear equation: _points=15.60773-0.07716age+3.59413attitude-0.60275deep_. Then there are standard errors, and t-values from the statistical test that have been performed and p-values which tell if the explanatory variable is statistically significant variable. Usually we choose the level of significance, often it is 0,05. If we look at the variable age, we see that the p-value is 0,149 > 0,05, so age is not statistically significant variable. Variable deep is not either statistically significant variable because its p-value is even higher 0,423 > 0,05. But if we look variable attitude, p-value is very small 2.56e-09 < 0,05, and it is statistically significant. 
+From the summary we can see the model1 parameters. Estimates tell the relationships between the explanatory variables and the target variable. By using he estimates we can also write down the linear equation: _points=15.60773-0.07716age+3.59413attitude-0.60275deep_.Then there are also standard errors in the summary, and t-values from the statistical test that have been performed and p-values which tell if the explanatory variable is statistically significant variable. Usually we choose the level of significance, often it is 0,05. If we look at the variable age, we see that the p-value is 0,149 > 0,05, so age is not statistically significant variable. Variable deep is not either statistically significant variable because its p-value is even higher 0,423 > 0,05. But if we look at the variable attitude, p-value is very small 2.56e-09 < 0,05, which means that it is statistically significant. 
 
 Next I remove age and deep from the model, because they were not statistically significant. 
 
@@ -56,5 +56,41 @@ Next I remove age and deep from the model, because they were not statistically s
 model2 <- lm(points ~  attitude, data = students2014)
 summary(model2)
 
+
 ```
-From the summary we can see the model2 parameters. 
+From the summary we can see now the model2 parameters. If we look at the relationship between the variables points and attitude, the attitude is statistically significant variable, p-value is very small 4.12e-09 < 0,05. Model equation is: _points=11.6372+3.5255attitude_. This means that when attitude increases by one, exam points will increase 3.5255 points on average. 
+
+Multiple R-squared is:  0.1906.This means that the fitted model explains 19,06 % of the variation in exam points. In my opinion, R squared is quite low (R squared is always between 0 and 100 %), but on the other hand we have statistically significant variable, which is good.
+
+
+#### Diagnostic plots
+
+produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage. Explain the assumptions of the model and interpret the validity of those assumptions based on the diagnostic plots. (0-3 points)
+
+Diagnostic plots can tell us about the goodness of the fitted model. There are few assumptions related to the evaluation of fitted models. Often when analyzing fitted models we look at residuals and errors. Errors are assumed to be normally distributed and they are not correlated. They are assumed to have constant variance and the size of a error should not be dependent on the explanatory variables. These assumptions we can evaluate with a QQ-plot, a scatter plot of residuals versus model predictions and with a residuals vs leverage plot.
+
+
+
+```{r}
+plot(model2, which = c(1)) # Residuals vs fitted plot of model2
+
+```
+
+
+Residuals vs fitted plot can tell us about the constant variance of errors which is assumed. If we look at the residuals vs fitted plot, we can see that residuals are quite well distributed around the 0-line, which means that the variance of errors is constant. There are only three points which might be outliers (145, 56, 35).
+
+```{r}
+plot(model2, which = c(2)) # QQ-plot of model2
+
+```
+
+QQ-plot can help us figure out if the assumption of normality of the errors is true. If we look at the QQ-plot we can see that points follow the line quite nicely, so we can assume that the errors are normally distributed. 
+
+```{r}
+plot(model2, which = c(5)) # Residuals vs Leverage plot of model2
+
+```
+
+Leverage of observations can tell us if a single observation has a high impact on the model. If we look at the Residuals vs Leverage plot we see that the leverage scale is from 0 to 0,04, so their values are small and there aren´t any outliers. So the leverage seem regular, which also means that the errors are regular. 
+
+Based on results of the model validity tests I would say that the model that was fitted is okay. 
