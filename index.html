@@ -438,6 +438,7 @@ summary {
 <li><a href="#introduction-to-open-data-science---course-project">Introduction to Open Data Science - Course Project</a></li>
 <li><a href="#about-the-project">About the project</a></li>
 <li><a href="#regression-and-model-validation">2. Regression and model validation</a></li>
+<li><a href="#logistic-regression">3. Logistic regression</a></li>
 </ul>
 </div>
 
@@ -451,7 +452,7 @@ summary {
 <pre class="r"><code># This is a so-called &quot;R chunk&quot; where you can write R code.
 
 date()</code></pre>
-<pre><code>## [1] &quot;Thu Nov 05 09:29:35 2020&quot;</code></pre>
+<pre><code>## [1] &quot;Mon Nov 09 15:52:20 2020&quot;</code></pre>
 <p>I am a PhD student in the School of Pharmacy, UEF. I am doing metabolomics studies in my PhD thesis and I have a huge amount of data to be analyzed. I chose this course to get some new tools for analyzing and visualizing my data. I have used R in a couple of basic statistics courses but I wish to learn some new tricks in this course.</p>
 <p>Here is the to link to my GitHub repository: <a href="https://github.com/johannakoskivuori/IODS-project" class="uri">https://github.com/johannakoskivuori/IODS-project</a></p>
 <hr />
@@ -460,7 +461,7 @@ date()</code></pre>
 <h1>2. Regression and model validation</h1>
 <p>This week I performed regression analysis and method validation for the data learning2014 that I created in the data wrangling exercise. Below you can find the analysis that was performed, more information about the data that was analyzed and of course the results I got.</p>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Thu Nov 05 09:29:35 2020&quot;</code></pre>
+<pre><code>## [1] &quot;Mon Nov 09 15:52:20 2020&quot;</code></pre>
 <pre class="r"><code>students2014 &lt;- read.table(&quot;learning2014.txt&quot;, sep = &quot;,&quot;, header = TRUE)
 students2014$gender &lt;- factor(students2014$gender) # Making gender a factor</code></pre>
 <pre class="r"><code>str(students2014)</code></pre>
@@ -568,8 +569,15 @@ summary(model2)</code></pre>
 <p>Leverage of observations can tell us if a single observation has a high impact on the model. If we look at the Residuals vs Leverage plot we see that the leverage scale is from 0 to 0,04, so their values are small and there aren´t any outliers. So the leverage seem regular, which also means that the errors are regular.</p>
 <p>Based on the results of the model validity tests I would say that the model that was fitted is okay.</p>
 <hr />
-<p>(more chapters to be added similarly as we proceed with the course!)</p>
 </div>
+</div>
+<div id="logistic-regression" class="section level1">
+<h1>3. Logistic regression</h1>
+<p>This week I performed logistic regression analysis and method validation . Below you can find the analysis that was performed, more information about the data that was analyzed and of course the results I got.</p>
+<pre class="r"><code>date()</code></pre>
+<pre><code>## [1] &quot;Mon Nov 09 15:52:22 2020&quot;</code></pre>
+<hr />
+<p>(more chapters to be added similarly as we proceed with the course!)</p>
 </div>
 
 
