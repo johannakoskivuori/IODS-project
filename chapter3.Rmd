@@ -1,0 +1,10 @@
+# 3. Logistic regression
+
+This week I performed logistic regression analysis and method validation    . Below you can find the analysis that was performed, more information about the data that was analyzed and of course the results I got.
+
+
+```{r}
+date()
+
+```
+
