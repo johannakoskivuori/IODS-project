@@ -1,10 +1,181 @@
 # 3. Logistic regression
 
-This week I performed logistic regression analysis and method validation    . Below you can find the analysis that was performed, more information about the data that was analyzed and of course the results I got.
+This week I performed logistic regression analysis. Below you can find the analysis that was performed, more information about the data that was analyzed and the results I got.
 
 
 ```{r}
 date()
 
 ```
+
+Data was loaded from [link](https://archive.ics.uci.edu/ml/machine-learning-databases/00320/) (student.zip file)
+More information can be found [here](https://archive.ics.uci.edu/ml/datasets/Student+Performance).
+
+Data was described in the web page :"This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features and it was collected by using school reports and questionnaires." There were two datasets regarding performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). Those datasets were joined together in data wrangling exercise. I am using Reijo Sund´s version of the data in my calculation and it consists of 370 observations of  51 variables. Names of the variables are seen below.
+
+Accessing useful libraries at first:
+
+```{r}
+library(tidyr); library(dplyr); library(ggplot2)
+  
+```
+
+```{r}
+alc_consump <- read.table("~/R/IODS-course/IODS-project/data/pormath.txt", sep = ",", header=TRUE)
+glimpse(alc_consump)
+alc_consump$sex <- factor(alc_consump$sex) # Making sex a factor
+
+```
+
+I chose 4 different variables: sex, grades, absences and freetime. My hypotheses are: 
+
+1. Male sex has higher alcohol consumption compared to females. 
+2. Lower grades at school results in greater alcohol consumption.
+3. More absences at school can be explained by higher alcohol consumption.
+4. More freetime can lead to higher alcohol consumption.
+
+Numerically and graphically explore the distributions of your chosen variables and their relationships with alcohol consumption (use for example cross-tabulations, bar plots and box plots). Comment on your findings and compare the results of your exploration to your previously stated hypotheses. (0-5 points)
+
+#### Graphical and numerical overview of the chosen variables
+
+
+```{r}
+g1 <- ggplot(alc_consump, aes(x=sex))
+g1 + geom_bar()
+```
+
+```{r}
+alc_consump %>% group_by(sex, high_use)%>% summarise(count = n()) 
+```
+
+There are 195 females and 175 males in the data. From the table above we can see that there are more high alcohol using students in males (70) that in females (41), as I assumed in my first hypothesis. 
+
+Next we will see what is the relationship between grades and alcohol consumption. 
+
+```{r}
+g2 <- ggplot(alc_consump, aes(x=G3, col=sex))
+g2 + geom_bar()
+alc_consump %>% group_by(sex, high_use) %>% summarise(count = n(), mean_grade = mean(G3))
+```
+
+```{r}
+g7 <- ggplot(alc_consump, aes(x = high_use, y = G3, col=sex))
+g7 + geom_boxplot() + ylab("grades") +ggtitle("Student grades by alcohol consumption and sex")
+```
+Mean grades in female group don´t differ between high and low alcohol users. But in male group, there is difference between mean grades and it is lower in high alcohol users, which I expected. I also thought that this would be seen in females too. 
+
+Absences are quite evenly distributed between females and males. Most of the students have 0 or only few absences, but there are few outliers, students who have a lot of absences (>25)
+
+```{r}
+g3 <- ggplot(alc_consump, aes(x=absences, col=sex))
+g3 + geom_bar()
+
+```
+
+```{r}
+g5 <- ggplot(alc_consump, aes(x = high_use, y = absences, col=sex))
+g5 + geom_boxplot() + ylab("absences") +ggtitle("Student absences by alcohol consumption and sex")
+```
+
+There is not much difference between the amount of absences in high and low alcohol users on average. But in high alcohol users the variance is greater. Results are quite similar in females and males. My hypothesis was that there would be more absences when alcohol is used. That is somehow right, because the variance is greater. 
+
+```{r}
+g4 <- ggplot(alc_consump, aes(x=freetime, col=sex))#Freetime bar plot
+g4 + geom_bar()
+```
+
+Most of the students have medium amount of freetime but females have a bit less freetime on average than males. And in males, high alcohol users have on average more freetime. In females the variance in freetime in high alcohol users is smaller. This was also as I assumed in my hypothesis. 
+
+
+
+```{r}
+g6 <- ggplot(alc_consump, aes(x = high_use, y = freetime, col=sex))
+g6 + geom_boxplot() + ylab("freetime") +ggtitle("Student freetime by alcohol consumption and sex")
+```
+
+#### Logistic regression
+
+I will use logistic regression to statistically explore the relationship between my chosen variables: sex, grades, absences and freetime  and the binary high/low alcohol consumption variable as the target variable.
+
+Present and interpret a summary of the fitted model. 
+
+Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. 
+
+Interpret the results and compare them to your previously stated hypothesis. Hint: If your model includes factor variables see for example the first answer of this stackexchange thread on how R treats and how you should interpret these variables in the model output (or use some other resource to study this). (0-5 points)
+
+```{r}
+m1 <- glm(high_use ~ G3 + absences + sex + freetime, data = alc_consump, family = "binomial")
+summary(m1)
+coef(m1)
+```
+
+If we now look at the summary of the fitted model, we can see the model estimates and parameters and also the p-values of the statistical test (Pr(>|z|)). If we look at the p-values, all of them are smaller that 0,05, so all of the chosen variables are statistically significant. If we compare the p-values, grades (G3) has the highest value 0,0393 which is quite close to 0,05. So with grades the significance is not so great as for example in the case of absences. The p-value for absences is very small 5.12e-05, which means that there is statistically significant relationship between absences and high alcohol consumption. In the summary sexM, means that when comparing females to males, male sex has statistically significant relationship between high alcohol consumption, p-value 0,00022. However, there are statistically significant relationships between all the chosen variables and high alcohol consumption.  
+
+Next I will present the coefficients of the model as odds ratios, including confident intervals 
+
+```{r}
+OR <- coef(m1) %>% exp #computing odds ratios
+CI <- confint(m1) %>% exp #computing confidence intervals
+cbind(OR, CI) #printing out the odds ratios with their confidence intervals
+
+```
+
+Now we can see ORs. We also need the original coefficients of the model for explaining the results. 
+
+```{r}
+coef(m1)
+```
+Grades (G3):OR is 0,93, but the coefficient is negative -0,076, which means that when grades grow bigger the probability of high alcohol consumption decreases 0,93 fold.
+
+absences: OR is 1,10, and the coefficient is positive 0,094, which means that when absences increase the probability of high alcohol consumption increases 1,10 fold.
+
+sexM: OR is 2,53 and the coefficient is positive 0,93, which means that when we compare females to males, being male increases the probability of high alcohol consumption 2,53 fold.
+
+freetime: OR is 1.36 and the coefficient is positive 0,30, which means that when freetime increase the probability of high alcohol consumption increases 1,36 fold.
+
+Based on these results, my hypotheses were right. 
+
+Using the variables which, according to your logistic regression model, had a statistical relationship with high/low alcohol consumption, explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy. (0-3 points)
+
+#### Model predictions
+
+
+```{r}
+
+
+probabilities <- predict(m1, type = "response") # predicting the probability of high_use
+
+
+alc_consump <- mutate(alc_consump, probability = probabilities) # adding the predicted probabilities to 'alc_consump'
+
+
+alc_consump <- mutate(alc_consump, prediction = probability > 0.5) # using the probabilities to make a prediction of high_use
+
+
+select(alc_consump, G3, absences, sex, freetime, high_use, probability, prediction) %>% tail(10)# checking the last ten original classes, predicted probabilities, and class predictions
+
+
+table(high_use = alc_consump$high_use, prediction = alc_consump$prediction) # tabulating the target variable versus the predictions
+
+```
+
+```{r}
+# initialize a plot of 'high_use' versus 'probability' in 'alc'
+g_p <- ggplot(alc_consump, aes(x = probability, y = high_use,col =prediction ))
+
+
+# define the geom as points and draw the plot
+ g_p + geom_point()
+
+
+```
+
+```{r}
+# tabulate the target variable versus the predictions
+table(high_use = alc_consump$high_use, prediction = alc_consump$prediction) %>% prop.table() %>% addmargins()
+```
+
+
+
+
 
