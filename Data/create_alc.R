@@ -15,10 +15,8 @@ por <- read.csv("student-por.csv", sep = ";", header = TRUE)
 str(por) # 649 obs. of  33 variables
 dim(por) # 649 rows and 33 columns 
 
-#Join the two data sets using the variables "school", "sex", "age", "address", "famsize", "Pstatus", "Medu", "Fedu", "Mjob", "Fjob", "reason", "nursery","internet" as (student) identifiers. 
-#Keep only the students present in both data sets. Explore the structure and dimensions of the joined data. (1 point)
 
-library(dplyr) # Librarry for data wrangling
+library(dplyr) # Library for data wrangling
 
 #Joining two datasets math and por together using the variables in join_by
 
