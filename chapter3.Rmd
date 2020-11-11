@@ -61,8 +61,8 @@ alc_consump %>% group_by(sex, high_use) %>% summarise(count = n(), mean_grade = 
 ```
 
 ```{r}
-g7 <- ggplot(alc_consump, aes(x = high_use, y = G3, col=sex))
-g7 + geom_boxplot() + ylab("grades") +ggtitle("Student grades by alcohol consumption and sex")
+g3 <- ggplot(alc_consump, aes(x = high_use, y = G3, col=sex))#box plot of student grades and high use
+g3 + geom_boxplot() + ylab("grades") +ggtitle("Student grades by alcohol consumption and sex")
 ```
 
 Mean grades in female group don´t differ between high and low alcohol users. But in male group, there is difference between mean grades and it is lower in high alcohol users, which I expected. I also thought that this would be seen in females too. 
@@ -72,8 +72,8 @@ Mean grades in female group don´t differ between high and low alcohol users. Bu
 Distribution of absences is on the left and absences are quite evenly distributed between females and males. Most of the students have 0 or only few absences, but there are few outliers, students who have a lot of absences (>25)
 
 ```{r}
-g3 <- ggplot(alc_consump, aes(x=absences, col=sex))#bar plot of absences
-g3 + geom_bar()
+g4 <- ggplot(alc_consump, aes(x=absences, col=sex))#bar plot of absences
+g4 + geom_bar()
 
 ```
 
@@ -87,16 +87,16 @@ There is not much difference between the amount of absences in high and low alco
 ##### Freetime
 
 ```{r}
-g4 <- ggplot(alc_consump, aes(x=freetime, col=sex))#Freetime bar plot
-g4 + geom_bar()
+g6 <- ggplot(alc_consump, aes(x=freetime, col=sex))#Freetime bar plot
+g6 + geom_bar()
 ```
 
 Most of the students have medium amount of freetime but females have a bit less freetime than males. And in males, high alcohol users have more freetime on average. In females the variance of freetime in high alcohol users is smaller than in low users. This was also as I assumed in my hypothesis. 
 
 
 ```{r}
-g6 <- ggplot(alc_consump, aes(x = high_use, y = freetime, col=sex)) #box plot of high use vs freetime  
-g6 + geom_boxplot() + ylab("freetime") +ggtitle("Student freetime by alcohol consumption and sex")
+g7 <- ggplot(alc_consump, aes(x = high_use, y = freetime, col=sex)) #box plot of high use vs freetime  
+g7 + geom_boxplot() + ylab("freetime") +ggtitle("Student freetime by alcohol consumption and sex")
 ```
 
 #### Logistic regression
@@ -107,7 +107,7 @@ I will use logistic regression to statistically explore the relationship between
 ```{r}
 m1 <- glm(high_use ~ G3 + absences + sex + freetime, data = alc_consump, family = "binomial")
 summary(m1)
-coef(m1)
+
 ```
 
 If we now look at the summary of the fitted model, we can see the model estimates and parameters and also the p-values of the statistical test (Pr(>|z|)). If we look at the p-values, all of them are smaller that 0,05, so all of the chosen variables are statistically significant. If we compare the p-values, grades (G3) has the highest value 0,0393 which is quite close to 0,05. So with grades the significance is not so great as for example in the case of absences. The p-value for absences is very small 5.12e-05, which means that there is statistically significant relationship between absences and high alcohol consumption. In the summary sexM, means that when comparing females to males, male sex has statistically significant relationship between high alcohol consumption, p-value 0,00022. However, there are statistically significant relationships between all the chosen variables and high alcohol consumption.  
@@ -136,7 +136,6 @@ freetime: OR is 1.36 and the coefficient is positive 0,30, which means that when
 
 Based on these results, my hypotheses were almost right. Only the variable grades were shown not to have statistically significant relationship with high alcohol use. 
 
-Using the variables which, according to your logistic regression model, had a statistical relationship with high/low alcohol consumption, explore the predictive power of you model. Provide a 2x2 cross tabulation of predictions versus the actual values and optionally display a graphic visualizing both the actual values and the predictions. Compute the total proportion of inaccurately classified individuals (= the training error) and comment on all the results. Compare the performance of the model with performance achieved by some simple guessing strategy. (0-3 points)
 
 #### Model predictions
 
@@ -149,18 +148,13 @@ summary(m2)
 
 
 ```{r}
-
 probabilities <- predict(m2, type = "response") # predicting the probability of high_use, with new model m2
-
 
 alc_consump <- mutate(alc_consump, probability = probabilities) # adding the predicted probabilities to 'alc_consump'
 
-
 alc_consump <- mutate(alc_consump, prediction = probability > 0.5) # using the probabilities to make a prediction of high_use
 
-
 select(alc_consump, absences, sex, freetime, high_use, probability, prediction) %>% tail(10)# checking the last ten original classes, predicted probabilities, and class predictions
-
 
 table(high_use = alc_consump$high_use, prediction = alc_consump$prediction) # tabulating the target variable versus the predictions
 
@@ -191,5 +185,5 @@ loss_func <- function(class, prob) { # defining a loss function (mean prediction
 loss_func(class = alc_consump$high_use, prob = 0) # calling loss_func to compute the average number of wrong predictions in the data
 ```
 
-Based on these model prediction results, I would say that the predictive power of the fitted model is not perfect, because there are differences between the predicted and real results. The average number of wrong predictions is 0.3 (30%). 
+Based on these model prediction results, I would say that the predictive power of the fitted model is not perfect, because there are differences between the predicted and real results. The average number of wrong predictions is 0.3 (30%). If we compare the performance of the model with performance achieved by some simple guessing strategy, I think it is better to use statistical methods instead of just guessing. Statistical tests can reveal things that you cannot see by just making a guess or drawing a simple plot. 
 
