@@ -21,7 +21,7 @@ library(tidyr); library(dplyr); library(ggplot2)
 ```
 
 ```{r}
-alc_consump <- read.table("~/R/IODS-course/IODS-project/data/pormath.txt", sep = ",", header=TRUE)
+alc_consump <- read.table("~/R/IODS-course/IODS-project/Data/pormath.txt", sep = ",", header=TRUE)
 glimpse(alc_consump)
 alc_consump$sex <- factor(alc_consump$sex) # Making sex a factor
 
@@ -169,11 +169,12 @@ g_p <- ggplot(alc_consump, aes(x = probability, y = high_use,col =prediction )) 
 ```
 
 ```{r}
-
-table(high_use = alc_consump$high_use, prediction = alc_consump$prediction) %>% prop.table() %>% addmargins()
 # tabulating the target variable versus the predictions
+table(high_use = alc_consump$high_use, prediction = alc_consump$prediction) %>% prop.table() %>% addmargins()
+
 ```
 
+Calculating the mean predictive error and average number of wrong predictions to see how well predictions are made
 
 ```{r}
 
