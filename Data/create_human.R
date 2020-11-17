@@ -50,9 +50,6 @@ colnames(hd) #checking the chenges
 colnames(gii)
 
 #Mutate the “Gender inequality” data and create two new variables. 
-#The first one should be the ratio of Female and Male populations with secondary education in each country. 
-#(i.e. edu2F / edu2M). The second new variable should be the ratio of labour force participation of females 
-#and males in each country (i.e. labF / labM). (1 point)
 
 # defining a new column Edu2.FM by dividing Edu2.F / Edu2.M 
 Edu2.FM <- mutate(gii, Edu2.FM = (Edu2.F / Edu2.M))
@@ -60,10 +57,7 @@ Edu2.FM <- mutate(gii, Edu2.FM = (Edu2.F / Edu2.M))
 # defining a new column Labo.FM by dividing Labo2.F / Labo2.M 
 Labo.FM <- mutate(gii, Labo.FM = (Labo.F / Labo.M))
 
-#Join together the two datasets using the variable Country as the identifier. 
-#Keep only the countries in both data sets (Hint: inner join). 
-#The joined data should have 195 observations and 19 variables. 
-#Call the new joined data "human" and save it in your data folder. (1 point)
+#Joining together the two datasets using the variable Country as the identifier. 
 
 # Country used as identifier
 join_by <- c("Country")
