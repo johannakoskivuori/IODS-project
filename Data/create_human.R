@@ -67,7 +67,7 @@ human <- inner_join(hd, gii, by = join_by, suffix = c(".hd", ".gii"))
 
 colnames(human)
 glimpse(human) # 195 rows of observations and 17 columns of variables, for some reason I get only 17 variables 
-# but according to the instructions there should be 19, what went wrong? Am I missing those variables that I created?
+# but according to the instructions there should be 19.
 
 # Setting the working directory of R session the iods project folder and saving the file to folder Data
 
@@ -84,7 +84,9 @@ str(human_created) # 195 obs. of  17 variables, works fine
 
 
 
-# Johanna Koskivuori, 17112020, Exercise 5 data wrangling continues
+
+
+# Johanna Koskivuori, 18112020, Exercise 5 data wrangling continues
 
 # More information about the data is in: http://hdr.undp.org/en/content/human-development-index-hdi
 
@@ -124,7 +126,7 @@ colnames(human1)
 
 library(stringr)
 
-# remove the commas from GNI and create a numeric version of it
+# removing the commas from GNI and create a numeric version of it
 human1 <- mutate(human1, GNI=str_replace(GNI, pattern=",", replace =""))
 str(human1)
 human1$GNI <- as.numeric(human1$GNI)
@@ -148,7 +150,7 @@ str(human2)#162 obs. of  9 variables
 #Removing the observations which relate to regions instead of countries
 
 # looking at the last 10 observations of human2
-tail(human2, 10) #7 regionsin the end
+tail(human2, 10) #7 regions in the end
 
 # defining the last indice we want to keep
 last <- nrow(human2) - 7
@@ -172,9 +174,5 @@ setwd("~/R/IODS-course/IODS-project/Data")
 write.table(human3, file = "human.txt", sep = ",", col.names = TRUE, row.names = TRUE)
 human_created2 <- read.table("human.txt", sep = ",", header = TRUE) 
 str(human_created2) # 155 obs. of  8 variables, works fine
-
-
-
-
 
 
