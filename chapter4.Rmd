@@ -1,5 +1,12 @@
 # 4. Clustering and classification
 
+This week I performed clustering and classification. Below you can find the analysis that was performed, more information about the data that was analyzed and the results I got.
+
+```{r}
+date()
+
+```
+
 Exercises of week 4 are based on data from MASS library. Data Boston consists of housing Values in suburbs of Boston, and more information from the data can be found [here](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html). Data contains information for example crime rates which will be analyzed more in detail. 
 
 ```{r}
@@ -229,10 +236,6 @@ pairs(boston_scaled[8:14], col = km$cluster)# perform plotting in two parts so t
 ```
 
 From the plots above, we can see the clustering in different colours. Some clusters are very clearly separated, but in other cases clusters are on top of each other. So I am not quite sure what would be the most optimal number of clusters in this case. 
-
-
-
-
 
 
 

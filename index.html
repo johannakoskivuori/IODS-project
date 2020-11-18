@@ -439,6 +439,7 @@ summary {
 <li><a href="#about-the-project">About the project</a></li>
 <li><a href="#regression-and-model-validation">2. Regression and model validation</a></li>
 <li><a href="#logistic-regression">3. Logistic regression</a></li>
+<li><a href="#clustering-and-classification">4. Clustering and classification</a></li>
 </ul>
 </div>
 
@@ -452,7 +453,7 @@ summary {
 <pre class="r"><code># This is a so-called &quot;R chunk&quot; where you can write R code.
 
 date()</code></pre>
-<pre><code>## [1] &quot;Thu Nov 12 09:08:23 2020&quot;</code></pre>
+<pre><code>## [1] &quot;Thu Nov 12 12:02:38 2020&quot;</code></pre>
 <p>I am a PhD student in the School of Pharmacy, UEF. I am doing metabolomics studies in my PhD thesis and I have a huge amount of data to be analyzed. I chose this course to get some new tools for analyzing and visualizing my data. I have used R in a couple of basic statistics courses but I wish to learn some new tricks in this course.</p>
 <p>Here is the to link to my GitHub repository: <a href="https://github.com/johannakoskivuori/IODS-project" class="uri">https://github.com/johannakoskivuori/IODS-project</a></p>
 <hr />
@@ -461,7 +462,7 @@ date()</code></pre>
 <h1>2. Regression and model validation</h1>
 <p>This week I performed regression analysis and method validation for the data learning2014 that I created in the data wrangling exercise. Below you can find the analysis that was performed, more information about the data that was analyzed and of course the results I got.</p>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Thu Nov 12 09:08:23 2020&quot;</code></pre>
+<pre><code>## [1] &quot;Thu Nov 12 12:02:38 2020&quot;</code></pre>
 <pre class="r"><code>students2014 &lt;- read.table(&quot;learning2014.txt&quot;, sep = &quot;,&quot;, header = TRUE)
 students2014$gender &lt;- factor(students2014$gender) # Making gender a factor</code></pre>
 <pre class="r"><code>str(students2014)</code></pre>
@@ -575,7 +576,7 @@ summary(model2)</code></pre>
 <h1>3. Logistic regression</h1>
 <p>This week I performed logistic regression analysis. Below you can find the analysis that was performed, more information about the data that was analyzed and the results I got.</p>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Thu Nov 12 09:08:25 2020&quot;</code></pre>
+<pre><code>## [1] &quot;Thu Nov 12 12:02:39 2020&quot;</code></pre>
 <p>Data was loaded from <a href="https://archive.ics.uci.edu/ml/machine-learning-databases/00320/">link</a> (student.zip file) More information can be found <a href="https://archive.ics.uci.edu/ml/datasets/Student+Performance">here</a>.</p>
 <p>Data was described in the web page :“This data approach student achievement in secondary education of two Portuguese schools. The data attributes include student grades, demographic, social and school related features and it was collected by using school reports and questionnaires.” There were two datasets regarding performance in two distinct subjects: Mathematics (mat) and Portuguese language (por). Those datasets were joined together in data wrangling exercise. I am using Reijo Sund´s version of the data in my calculation and it consists of 370 observations of 51 variables. Names of the variables are seen below.</p>
 <p>Accessing useful libraries at first:</p>
@@ -840,8 +841,12 @@ loss_func(class = alc_consump$high_use, prob = 0) # calling loss_func to compute
 <pre><code>## [1] 0.3</code></pre>
 <p>Based on these model prediction results, I would say that the predictive power of the fitted model is not perfect, because there are differences between the predicted and real results. The average number of wrong predictions is 0.3 (30%). If we compare the performance of the model with performance achieved by some simple guessing strategy, I think it is better to use statistical methods instead of just guessing. Statistical tests can reveal things that you cannot see by just making a guess or drawing a simple plot.</p>
 <hr />
-<p>(more chapters to be added similarly as we proceed with the course!)</p>
 </div>
+</div>
+<div id="clustering-and-classification" class="section level1">
+<h1>4. Clustering and classification</h1>
+<hr />
+<p>(more chapters to be added similarly as we proceed with the course!)</p>
 </div>
 
 
