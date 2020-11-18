@@ -3,6 +3,7 @@
 #More information regarding the data can be found from the links: http://hdr.undp.org/sites/default/files/hdr2015_technical_notes.pdf)
 #http://hdr.undp.org/en/content/human-development-index-hdi
 
+
 #reading the data
 
 hd <- read.csv("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/human_development.csv", stringsAsFactors = F)

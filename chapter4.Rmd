@@ -7,10 +7,10 @@ date()
 
 ```
 
-Exercises of week 4 are based on data from MASS library. Data Boston consists of housing Values in suburbs of Boston, and more information from the data can be found [here](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html). Data contains information for example crime rates which will be analyzed more in detail. 
+Exercises of week 4 are based on data from MASS library. Data Boston consists of housing Values in suburbs of Boston, and more information from the data can be found [here](https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/Boston.html).  
 
 ```{r}
-library(MASS); library(tidyr); library(dplyr); library(ggplot2)
+library(MASS); library(tidyr); library(dplyr); library(ggplot2); library(GGally)
 ```
 
 ```{r}
@@ -22,21 +22,17 @@ dim(Boston) # 506 rows and 14 columns
 #### Graphical overview
 
 ```{r}
-pairs(Boston) ## plotting matrix of the variables
+ggpairs(Boston[1:7]) ## plotting matrix of the variables in two parts
 ```
-
-From the pairs plot we can see the distributions and relationships between the variables. Because there are so many variables the picture is not so clear. From the bar plots below, you can see the distributions of all the variables which differ a lot. 
 
 ```{r}
-gather(Boston[1:7]) %>% ggplot(aes(value))  + geom_bar() + facet_wrap("key", scales = "free")
+ggpairs(Boston[8:14]) ## plotting matrix of the variables
 ```
 
+From the pairs ggplots we can see the distributions and relationships between the variables. The biggest correlation in between variables tax and rad (0.910). Only the variable rm is somehow normally distributed. Distributions of variables crim, zn, chas, dis and lstat are on the left side. Whereas, Distribution of variableblack is in the right side. All the other variables, their distributions are somehow separated. 
 
-```{r}
-gather(Boston[8:14]) %>% ggplot(aes(value))  + geom_bar() + facet_wrap("key", scales = "free")
-```
 
-I will look at the correlations between variables in the data. Correlation plot is probably more informative if we want look at the relationships between variables. 
+Correlation plot is also nice if we want look at the relationships between variables. 
 
 ```{r}
 library(corrplot) 
@@ -60,9 +56,8 @@ From the correlation plot, we can see that there are high positive (for example 
 summary(Boston)
 ```
 
-From the summary table we can see the mean and median values of variables. Also min and max values and quartiles are visible. 
+From the summary table we can see the mean and median values of variables. Also min and max values and quantiles are visible. 
 
-Standardize the dataset and print out summaries of the scaled data. How did the variables change? Create a categorical variable of the crime rate in the Boston dataset (from the scaled crime rate). Use the quartiles as the break points in the categorical variable. Drop the old crime rate variable from the dataset. Divide the dataset to train and test sets, so that 80% of the data belongs to the train set. (0-2 points)
 
 #### Scaling the data
 
@@ -107,7 +102,7 @@ boston_scaled <- data.frame(boston_scaled, crime)# adding the new categorical va
 str(boston_scaled) #looking that everything worked
 ```
 
-I divide the dataset to train and test sets, so that 80% of the data belongs to the train set.
+I will divide the dataset to train and test sets, so that 80% of the data belongs to the train set.
 
 ```{r}
 n <- nrow(boston_scaled)# number of rows in the Boston dataset 
@@ -130,7 +125,7 @@ lda.fit <- lda(crime ~., data = train) # linear discriminant analysis
 lda.fit # print the lda.fit object
 ```
 
-I draw the LDA (bi)plot, but first we need the function for lda biplot arrows.
+I will draw the LDA (bi)plot, but first we need the function for lda biplot arrows.
 
 ```{r}
 lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
@@ -151,7 +146,7 @@ plot(lda.fit, dimen = 2, col = classes, pch = classes)# plotting the lda results
 lda.arrows(lda.fit, myscale = 2) #adding the arrows
 ```
 
-If we look at the model summary and plot, we see that LD1 explains 95 % of the variation in the plot and that is because of the clear cluster in the right side (blue). Rad seems to be significant variable for that. Other colours are not that well separated on the left.
+If we look at the model summary and plot, we see that LD1 explains 95 % of the variation in the plot.  There is clear cluster in the right side (blue). Rad seems to be significant variable for that. Other colours are not that well separated on the left.
 
 #### Model predictions
 
@@ -170,7 +165,7 @@ lda.pred <- predict(lda.fit, newdata = test) # predicting classes with test data
 table(correct = correct_classes, predicted = lda.pred$class) # cross tabulating the results
 ```
 
-If we look at the prediction results, we can see that it works quite well. Especially in high there is only 1 observation which is predicted as med_high. In other classes about 50 % of the predicted observations are correct.
+If we look at the prediction results, we can see that it works quite well. Predictions are working best in high group.  
 
 #### K-means clustering
 
@@ -186,7 +181,7 @@ class(boston_scaled)
 
 ```
 
-I calculate the distances between the observations and run k-means algorithm on the dataset. 
+I will calculate the distances between the observations and run k-means algorithm on the dataset. 
 
 ```{r}
 
