@@ -60,6 +60,10 @@ Labo.FM <- mutate(gii, Labo.FM = (Labo.F / Labo.M))
 
 #Joining together the two datasets using the variable Country as the identifier. 
 
+#different way of joining
+human <- inner_join(hd, gii, by = "Country")
+str(human)
+
 # Country used as identifier
 join_by <- c("Country")
 

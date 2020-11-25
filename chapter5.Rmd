@@ -1,0 +1,186 @@
+# 5.Dimensionality reduction techniques
+
+```{r}
+date()
+
+```
+
+This week I learned something about dimensionality reduction techniques. Below you can find the analysis that was performed, more information about the data that was analyzed and the results I got.
+
+Exercises of week 5 are based on human data. Data Human consists of Human Development Index (HDI) and it considers different aspects of human development,like health, knowledgeability and standards of living. More information from the data can be found [here](http://hdr.undp.org/en/content/human-development-index-hdi). 
+
+```{r}
+human <- read.table("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/human2.txt", sep=",", header=TRUE)
+```
+
+```{r}
+library(GGally); library(corrplot);library(tidyr); library(dplyr); library(ggplot2)
+```
+
+#### Graphical overview
+
+
+```{r}
+ggpairs(human)
+```
+
+We can see that the distributions of variables Edu2-FM, Labo.FM and Life.exp are on the right, whereas some of the variables (GNI, Mat-Mor,Ado.Birth and Parli.F)are clearly on the left. So for example Maternal mortality ratio (Mat.Mor), Adolescent birth rate (Ado.Birth) and Gross National Income per capita (GNI) are quite low in most of the countries. Expected years of schooling (Edu.exp) is somehow normally distributed and mean value is 13 years, so quite high. And for example Life expectancy at birth (Life.Exp) is clearly on the right, so it is very good in most of the countries. Proportion of females versus males with at least secondary education (Edu2.FM) looks also quite good, mean value is 0.85, so it is almost equal, on average males have a bit more often at least secondary education. And if we look at the Proportion of females versus males in the labour force (Labo.FM), it is similar to education, mean value is a bit lower than is education 0.70, so a bit higher portion of males works compared to females.  Distribution of Percetange of female representatives in parliament (Parli.F) is also on the left, so there are not so many females in parliaments around the world, on average 20 %. From the summary we can see the mean, median, min and max values of all the variables and also quantiles. 
+
+```{r}
+summary(human)
+```
+
+```{r}
+cor(human)%>%corrplot(method="circle",type = "upper", cl.pos = "b", tl.pos = "d", tl.cex = 0.6 )
+```
+
+From the correlation plot, we can see the relationships between the variables. Maternal mortality ratio (Mat.Mor) and Life expectancy at birth (Life.Exp) have the highest correlation (-0.857). There are also other significant correlation for example between Expected years of schooling (Edu.exp) and Life expectancy at birth (Life.Exp), Expected years of schooling (Edu.exp and Maternal mortality ratio (Mat.Mor) and Adolescent birth rate (Ado.Birth) and Maternal mortality ratio (Mat.Mor). Variables Proportion of females versus males in the labour force (Labo.FM) and Percetange of female representatives in parliament (Parli.F) don´t have significant correlations between other variables. But they have small positive correlation between each other. 
+
+```{r}
+cor(human)
+```
+
+
+#### PCA 
+
+First I will perform principal component analysis (PCA) on the not standardized human data.
+
+```{r}
+pca_human <- prcomp(human)
+
+```
+```{r}
+# creating and print out a summary of pca_human_std
+s1 <- summary(pca_human)
+s1
+```
+
+```{r}
+# getting rounded percetanges of variance captured by each PC
+pca_pr1 <- round(100*s1$importance[2, ], digits = 1)
+pca_pr1
+```
+
+```{r}
+biplot(pca_human, choices = 1:2, cex = c(0.5, 0.8), col = c("grey40", "deeppink2"))
+```
+
+From the summary of rounded percetanges of variance, we can see that PC1 explains 100 % of the variance and others are 0. So now it seems like Gross National Income per capita (GNI) is the only variable explaining the variance, and it is pointing in the same direction as PC1 so it is contributing that dimension. 
+
+
+Next I will standardize the variables and repeat the above analysis. 
+
+```{r}
+human_std <- scale(human)
+summary(human_std)
+
+```
+
+```{r}
+pca_human_std <- prcomp(human_std)
+
+```
+
+```{r}
+# creating and print out a summary of pca_human_std
+s2 <- summary(pca_human_std)
+s2
+```
+
+```{r}
+# getting rounded percetanges of variance captured by each PC
+pca_pr <- round(100*s2$importance[2, ], digits = 1)
+pca_pr
+```
+
+```{r}
+# creating object pc_lab to be used as axis labels so that we can see the percentages of PCs
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
+```
+
+
+```{r}
+biplot(pca_human_std, cex = c(0.5, 0.7), col = c("grey40", "red"), xlab = pc_lab[1], ylab = pc_lab[2])
+```
+
+If we compare non-standardized and standardized PCA-plots, they look totally different. Now there are multiple arrows pointing at different directions. PC1 explains 53.6 % of the variance and PC2 16.2 %. Small angle between arrows means high positive correlation, so there is high positive correlation between variables Maternal mortality ratio (Mat.Mor) and Adolescent birth rate (Ado.Birth) which was seen also earlier in the correlation plot. They have also small angle between PC1 which means also high positive correlation between them and they are contributing that dimension. There are multiple arrows pointing at the opposite direction from (Mat.Mor) and (Ado.Birth). They are also affecting PC1 and correlating with it. There are also very small angles between all of them so they are correlating with each other. Those variables are: Expected years of schooling (Edu.exp), Proportion of females versus males with at least secondary education (Edu2.FM), Life expectancy at birth (Life.Exp) and Gross National Income per capita (GNI). GNI arrow is still pointing in the same direction as in the non-standardized PCA-plot. There are still two variables Proportion of females versus males in the labour force (Labo.FM) and Percetange of female representatives in parliament (Parli.F) which are pointing upwards, in the same direction as PC2 so they are correlating with it. There is clear angle between them, so the correlation between those variables is smaller but still existing. But angles between the arrows pointing up versus others pointing horizontally are quite big, which means that there is no correlation between them. Almost all the lenghts of the arrows are equal, which means that the standard deviations are quite equal. 
+
+
+I think the first two PC dimensions explain well the distributions of different countries based on different variables. If we look at the standardized human data PCA plot, we can see that in the right side, there are a lot of African countries, whereas on the left side there are Westerns countries and the Nordic countries in the left upper corner. And also in the bottom of the plot are mainly Arabic countries. We all know that there are differences between those countries which are also shown in this plot. For example in the African countries Maternal mortality ratio (Mat.Mor) and Adolescent birth rate (Ado.Birth) are higher, in the Western countries Expected years of schooling (Edu.exp), Proportion of females versus males with at least secondary education (Edu2.FM), Life expectancy at birth (Life.Exp) and Gross National Income per capita (GNI) are higher and also in the Nordic countries the Percentage of female representatives in parliament (Parli.F) is higher as we know from Finland for example. Whereas in some of the Arabic countries the situation is opposite considering the Percentage of female representatives in parliament. But there are also exceptions like Rwanda in the up. 
+
+
+
+#### Tea dataset and MCA analysis
+
+
+```{r}
+library(FactoMineR)
+```
+In this last part of exercise 5, I will explore the dataset Tea from FactoMineR-library. Then I will perform Multiple Correspondence Analysis on the data. 
+
+```{r}
+data(tea)
+str(tea)
+dim(tea)#300 rows and 36 columns
+```
+
+There are 300 observations of  36 variables in the tea data. Data has variables that consider when, where and how people drink tea and different kind of experiences related to drinking tea. 
+
+#### Graphical overview
+
+Here are the bar plots of all the variables. They are shown in multiple pictures, because that way they are easier to read
+
+```{r}
+gather(tea[1:9]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() 
+```
+
+```{r}
+gather(tea[10:15]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() +theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+```{r}
+gather(tea[16:21]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() +theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+```{r}
+gather(tea[22:27]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() +theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+```{r}
+gather(tea[28:36]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() 
+```
+
+I chose variables Tea, How, sex, sugar, frequency, age_Q and effect.on.health for the MCA analysis. 
+
+```{r}
+# column names to keep in the dataset
+keep_columns <- c("Tea", "How", "sex", "sugar", "frequency", "age_Q", "effect.on.health")
+```
+
+```{r}
+# select the 'keep_columns' to create a new dataset
+tea_time <- dplyr::select(tea, one_of(keep_columns))
+summary(tea_time)
+str(tea_time)
+```
+
+```{r}
+gather(tea_time) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar() +theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+```{r}
+mca <- MCA(tea_time, graph = FALSE)
+summary(mca)
+```
+
+```{r}
+plot(mca, invisible=c("ind"), habillage = "quali")
+```
+
+Here are some thoughts about the relationships between variables in tea data based on MCA factor map. Distances between variables in MCA plot tells about the similarity of the variables, closer they are to each other more similar they are. For example females (F) and males (M) are quite far away from each other so they are different. +60 and black are close to each other so maybe older people usually drink black tea. Green is also quite close to effect on health so maybe green tea has an effect on health compared to black tea for example. Age groups 35-44 and 45-59 are quite close to each other so maybe they have quite similar habits. Whereas 15-24 are far away from everything. Females (F) are close to +2/day, so maybe they drink tea more often. No sugar is closer to females and older people and sugar is closer to males and younger people so maybe this tells something about who uses sugar in their tea more often. 
+
+
+
+
+
+
