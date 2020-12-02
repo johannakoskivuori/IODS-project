@@ -1,0 +1,320 @@
+# 6.Analysis of longitudinal data
+
+```{r}
+date()
+
+```
+
+This week I learned something about the analysis of longitudinal data. Below you can find the analysis that was performed, more information about the data that was analyzed and the results I got.
+
+Useful libraries:
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+### Analysis of RATS data
+
+Implement the analyses of Chapter 8 of MABS using the RATS data. (0-7 points: 0-4 points for graphs or analysis results + 0-3 points for their interpretations)
+
+RATS data consists of results from a nutrition study conducted in three groups of rats which were put on a different diet and their body weights were recorded repeatedly over a nine week period (Crowder and Hand 1990). And now I will look if there are any differences between those groups. 
+
+Here is the RATS data that was wrangled in a long form:
+
+```{r}
+RATSL <- read.table("~/R/IODS-course/IODS-project/Data/RATSL.txt", sep = " ", header=TRUE)
+glimpse(RATSL)
+```
+
+Variables ID and Group have to be changed to factors again. 
+
+```{r}
+RATSL$ID <- factor(RATSL$ID)
+RATSL$Group <- factor(RATSL$Group)
+glimpse(RATSL)
+```
+
+#### Graphical overview
+
+Let´s plot the weights for all 16 rats, differentiating between the diet groups. 
+
+```{r}
+ggplot(RATSL, aes(x = Time, y = Weight, linetype = ID)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ Group, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(RATSL$Weight), max(RATSL$Weight)), name = "Weight (grams)")+
+  scale_x_continuous(name = "Time (days)")+
+  ggtitle("Weight of rats in three different diet groups")
+```
+
+From the plots above, we can clearly see that there are differences between diet groups. The weight seems to be growing in each group over time. However, in group 1 the weight is quite stable (below 300g) over the time period for all rats in that group. If we compare group 1 to groups 2 and 3, we see that there is significant difference and weight is higher in groups 2 and 3 than in 1. There is also one outlier in group 2 because the weight is clearly higher than any other. If we compare groups 2 and 3 there is not so clear difference between them. 
+
+Let´s see next what happens to the plot if we standardize the weight.  
+
+```{r}
+RATSL <- RATSL %>%
+  group_by(Time) %>%
+  mutate(stdWeight = (Weight - mean(Weight))/sd(Weight) ) %>%
+  ungroup()
+
+glimpse(RATSL)
+```
+
+Then I will do the plot again with standardized values
+
+
+```{r}
+ggplot(RATSL, aes(x = Time, y = stdWeight, linetype = ID)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ Group, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(name = "Standardized Weight (grams)")+
+  scale_x_continuous(name = "Time (days)")+
+  ggtitle("Standardized weight of rats in three different diet groups")
+```
+
+We can still see the differences between groups and the outlier but now it is not so clear, if the weight is growing over time. 
+
+Let´s do a graph showing average profiles for each diet group along with some indication of the variation of the observations at each time point. 
+
+```{r}
+n <- RATSL$Time %>% unique() %>% length() #number of time points
+
+RATSS <- RATSL %>% #Summary data with mean and standard error of weight by group and time
+  group_by(Group, Time) %>%
+  summarise( mean = mean(Weight), se = sd(Weight)/sqrt(n) ) %>%
+  ungroup()
+
+glimpse(RATSS)
+```
+
+Then let´s plot the mean profiles
+
+```{r}
+ggplot(RATSS, aes(x = Time, y = mean, linetype = Group, shape = Group)) +
+  geom_line() +
+  scale_linetype_manual(values = c(1,2,3)) +
+  geom_point(size=3) +
+  scale_shape_manual(values = c(1,2,3)) +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se, linetype="1"), width=0.3) +
+  theme(legend.position = c(0.8,0.8)) +
+  scale_y_continuous(name = "mean(weight) +/- se(weight)")+
+  theme(legend.position = "right")+
+  ggtitle("Mean profiles of three different diet groups")
+```
+
+From this plot above we can see even more clearly the differences between all the diet groups and how the weight is slightly increasing over time.
+
+Next I want to see if there are outliers in the data. I will calculate the mean for all groups over the whole time period and draw boxplots. 
+
+```{r}
+# Creating a summary data by weight and ID with mean as the summary variable (with baseline).
+RATSS_2 <- RATSL %>%
+  group_by(Group, ID) %>%
+  summarise( mean=mean(Weight) ) %>%
+  ungroup()
+
+glimpse(RATSS_2)
+```
+```{r}
+# Drawing a boxplot of the mean versus group
+ggplot(RATSS_2, aes(x = Group, y = mean)) +
+  geom_boxplot() +
+  stat_summary(fun = "mean", geom = "point", shape=23, size=4, fill = "white") +
+  scale_y_continuous(name = "mean(weight), over time period")+
+  ggtitle("Boxplots of the mean weights versus diet groups")
+```
+
+We can now see that there is significant outlier in the group 2 which I want to delete from the data. There are also outliers in groups 1 and 3 but they are not so significant as the one in group 2 so I will not delete them.  
+
+
+```{r}
+# Creating a new data by filtering the outlier 
+RATSLS_3 <- RATSS_2 %>%
+  filter(mean < 550)
+```
+```{r}
+# Drawing a boxplot of the mean versus group again without outlier
+ggplot(RATSLS_3, aes(x = Group, y = mean)) +
+  geom_boxplot() +
+  stat_summary(fun = "mean", geom = "point", shape=23, size=4, fill = "white") +
+  scale_y_continuous(name = "mean(weight), over time period")+
+  ggtitle("Boxplots of the mean weights versus diet groups without outlier")
+```
+
+From this plot we can see that the standard deviation inside the groups is quite small. But the differences between groups is seen clearly. 
+
+Even though, we can see the differences between groups quite clearly, we should run some statistical test to be sure.
+
+Now we have more than 2 variables, so we cannot use two sample t-test to see if there are statistically significant differences between groups. I will use function aov from stats package to see if there are differences between groups. 
+
+```{r}
+library(stats)
+```
+```{r}
+dif <- aov(mean ~ Group, data = RATSLS_3)
+summary(dif)
+```
+
+From the summary we can see that F value of the statistical test is very high 483.6 and p-value is very small (3.39e-12) which mean that there are statistically significant differences between diet groups.
+
+Next I will fit the linear model and see the table of variance
+
+```{r}
+# Fitting the linear model with the mean as the response 
+fit <- lm(mean ~ Group, data = RATSLS_3)
+summary(fit)
+
+# Computing the analysis of variance table for the fitted model with anova()
+anova(fit)
+```
+
+Because the p-value is so small in anova test, we can see that there are statistically significant differences between the diet groups. From the summary of the fitted model, we can see the estimated values. Intercept 263.716 g is the estimated expected average weight of rats in group 1. If we compare group 2 to group 1, wee see that weight increases 185.739 g on average with that diet in group 2. And if we compare group 3 to group 1, wee see that weight increases 262.080 g on average with that diet in group 3. So both diets in group 2 and 3 increase the weight but in group 3 the weight increase is bigger on average. Multiple R-squared of the fitted model is  0.9877, so the model explains 98.77 % of the variance. 
+
+
+### Analysis of BPRS data
+
+Here is the BPRS data that was wrangled in a long form:
+
+```{r}
+BPRSL <- read.table("~/R/IODS-course/IODS-project/Data/BPRSL.txt", sep = " ", header=TRUE)
+glimpse(BPRSL)
+```
+
+In BPRS data 40 male subjects were randomly assigned to one of two treatment groups and each subject was rated
+on the brief psychiatric rating scale (BPRS) measured before treatment (week 0) and then weekly for eight weeks period. The BPRS assesses the level of 18 symptom constructs each of which is rated from one (not present) to seven (extremely severe). The scale is used to evaluate patients suspected of having schizophrenia. Now I will look if there are differences between treatments groups. 
+
+```{r}
+#changing treatment and subject to factors again
+
+BPRSL$treatment <- factor(BPRSL$treatment)
+BPRSL$subject <- factor(BPRSL$subject)
+str(BPRSL)
+```
+
+
+Let`s plot the subjects individually so that we can see if there are differences between treatments 1 and 2. From the plot below we can see that there is no clear difference between two treatments, but it seems like bprs points are decreasing over the time. 
+
+```{r}
+ggplot(BPRSL, aes(x = week, y = bprs, linetype = subject)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(BPRSL$bprs), max(BPRSL$bprs)))
+```
+
+
+Next I will create a regression model with bprs as the response variable and week and treatment as explanatory variables
+
+```{r}
+# creating a regression model BPRSL_reg
+BPRSL_reg <- lm(bprs ~ week + treatment, data=BPRSL)
+# print out a summary of the model
+summary(BPRSL_reg)
+```
+
+From the summary we can see that week is statistically significant variable in the model (p-value very small) and when it increases by one the expected value of bprs decreases -2.27. If we look at summary we see also that variable treatment2 has not significant difference p-value > 0.05, so there is no difference between two treatment groups. 
+
+
+Next I will fit the random intercept model with the subject as the random effect
+
+```{r}
+# accessing library lme4
+library(lme4)
+
+# Creating a random intercept model
+BPRSL_ref <- lmer(bprs ~ week + treatment + (1 | subject), data = BPRSL, REML = FALSE)
+
+# Print the summary of the model
+summary(BPRSL_ref)
+```
+
+From the summary we can see that standard deviation of subject is quite high 6.885, so there is variability between subjects. 
+
+Next I will fit the random intercept and random slope model to the BPRS data. From the summary we can see that there is negative correlation -0.51 between subject and week. 
+
+
+```{r}
+# creating a random intercept and random slope model
+BPRSL_ref1 <- lmer(bprs ~ week + treatment + (week | subject), data = BPRSL, REML = FALSE)
+summary(BPRSL_ref1)
+```
+
+```{r}
+# performing an ANOVA test on the two models
+anova(BPRSL_ref1, BPRSL_ref)
+```
+
+If we look at the p-value of the test it is not that small but anyway < 0.05 (0.02636) so statistically significant, but the lower the value the better the fit against the comparison model. So there are some differences between the individuals.  
+
+In the last task, we can fit a random intercept and slope model that allows for a treatment × week interaction.
+
+First I would like to see if there is a interaction between variables treatment and week. I can do that with a simple linear regression model and anova test. 
+
+```{r}
+int_test <- lm(bprs ~ week + treatment + week*treatment, data = BPRSL)
+anova(int_test)
+```
+From the Analysis of Variance Table above we can see that week is statistically significant variable(p-value small, <2e-16), treatment is not significant variable (p-value 0.66 > 0.05) and there is no interaction between variables week and treatment (p-value 0.16 > 0.05). 
+
+Even though we saw that there is no interaction, I can still fit a random intercept and slope modeland see how it looks. 
+
+```{r}
+# creating a random intercept and random slope model
+BPRSL_ref2 <- lmer(bprs ~ week * treatment + (week | subject), data = BPRSL, REML = FALSE)
+summary(BPRSL_ref2)
+```
+
+Then we can compare the models again(BPRSL_ref1 and BPRSL_ref2) 
+
+```{r}
+# performing an ANOVA test on the two models
+anova(BPRSL_ref2, BPRSL_ref1)
+```
+
+Now we can see from the summary that p-value is 0.075 > 0.05, which means that there is no statistically significant difference between the two models, because there was no interaction between week and treatment. 
+
+Let´s draw a plot of BPRS again
+
+```{r}
+ggplot(BPRSL, aes(x = week, y = bprs, linetype = subject)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(BPRSL$bprs), max(BPRSL$bprs)))+
+  ggtitle("Bprs-test points in two treatment groups over the weeks")
+```
+
+Then I can create a vector of fitted values and add it to the BPRSL data
+
+```{r}
+# Create a vector of the fitted values
+Fitted <- fitted(BPRSL_ref2)
+
+# Creating a new column fitted to BPRSL
+BPRSL <- BPRSL %>%
+  mutate(Fitted)
+```
+
+Let´s draw the plot again with fitted values
+
+```{r}
+ggplot(BPRSL, aes(x = week, y = Fitted, linetype = subject)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(BPRSL$bprs), max(BPRSL$bprs)))+
+  ggtitle("Fitted values of bprs-test points in two treatment groups over the weeks")
+```
+
+If we compare the two pictures, we can see that the original values and fitted values decrease over the weeks but there is no clear difference between two treatments groups. However, there are differences between plots and the model could be better, for example that one outlier in group 2 is not separated in fitted value plot anymore.
+
+ 
