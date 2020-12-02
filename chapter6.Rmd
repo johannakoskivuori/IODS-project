@@ -1,4 +1,4 @@
-# 6.Analysis of longitudinal data
+# 6. Analysis of longitudinal data
 
 ```{r}
 date()
@@ -16,8 +16,6 @@ library(ggplot2)
 ```
 
 ### Analysis of RATS data
-
-Implement the analyses of Chapter 8 of MABS using the RATS data. (0-7 points: 0-4 points for graphs or analysis results + 0-3 points for their interpretations)
 
 RATS data consists of results from a nutrition study conducted in three groups of rats which were put on a different diet and their body weights were recorded repeatedly over a nine week period (Crowder and Hand 1990). And now I will look if there are any differences between those groups. 
 
@@ -56,19 +54,19 @@ From the plots above, we can clearly see that there are differences between diet
 Let´s see next what happens to the plot if we standardize the weight.  
 
 ```{r}
-RATSL <- RATSL %>%
+RATS_std <- RATSL %>%
   group_by(Time) %>%
   mutate(stdWeight = (Weight - mean(Weight))/sd(Weight) ) %>%
   ungroup()
 
-glimpse(RATSL)
+glimpse(RATS_std)
 ```
 
 Then I will do the plot again with standardized values
 
 
 ```{r}
-ggplot(RATSL, aes(x = Time, y = stdWeight, linetype = ID)) +
+ggplot(RATS_std, aes(x = Time, y = stdWeight, linetype = ID)) +
   geom_line() +
   scale_linetype_manual(values = rep(1:10, times=4)) +
   facet_grid(. ~ Group, labeller = label_both) +
@@ -135,12 +133,12 @@ We can now see that there is significant outlier in the group 2 which I want to 
 
 ```{r}
 # Creating a new data by filtering the outlier 
-RATSLS_3 <- RATSS_2 %>%
+RATSS_3 <- RATSS_2 %>%
   filter(mean < 550)
 ```
 ```{r}
 # Drawing a boxplot of the mean versus group again without outlier
-ggplot(RATSLS_3, aes(x = Group, y = mean)) +
+ggplot(RATSS_3, aes(x = Group, y = mean)) +
   geom_boxplot() +
   stat_summary(fun = "mean", geom = "point", shape=23, size=4, fill = "white") +
   scale_y_continuous(name = "mean(weight), over time period")+
@@ -157,7 +155,7 @@ Now we have more than 2 variables, so we cannot use two sample t-test to see if 
 library(stats)
 ```
 ```{r}
-dif <- aov(mean ~ Group, data = RATSLS_3)
+dif <- aov(mean ~ Group, data = RATSS_3)
 summary(dif)
 ```
 
@@ -167,7 +165,7 @@ Next I will fit the linear model and see the table of variance
 
 ```{r}
 # Fitting the linear model with the mean as the response 
-fit <- lm(mean ~ Group, data = RATSLS_3)
+fit <- lm(mean ~ Group, data = RATSS_3)
 summary(fit)
 
 # Computing the analysis of variance table for the fitted model with anova()
@@ -228,7 +226,7 @@ Next I will fit the random intercept model with the subject as the random effect
 # accessing library lme4
 library(lme4)
 
-# Creating a random intercept model
+# Creating a random intercept model with subject as random factor
 BPRSL_ref <- lmer(bprs ~ week + treatment + (1 | subject), data = BPRSL, REML = FALSE)
 
 # Print the summary of the model
